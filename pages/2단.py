@@ -1,11 +1,3 @@
-안녕하세요! 초등학교 2학년 아이들이 구구단 2단을 집중적으로 연습할 수 있는 스트림릿 앱 코드를 만들어 드릴게요. 2단을 완벽하게 마스터할 수 있도록 1부터 9까지 순서대로 문제를 내도록 구성했습니다. 🚀
-
-🔢 구구단 2단 연습 앱 (Streamlit)
-이 코드를 복사해서 app.py 파일로 저장하세요.
-
-app.py
-Python
-
 import streamlit as st
 import random
 
@@ -55,3 +47,46 @@ def check_answer(user_answer, correct_answer):
 # --- 메인 앱 레이아웃 ---
 
 correct_answer = display_current_question()
+
+st.write("---")
+
+if not st.session_state.quiz_finished:
+    # 사용자 입력
+    user_answer = st.number_input(
+        "여기에 정답을 입력하고 엔터를 누르세요:", 
+        min_value=1, 
+        step=1, 
+        key=f"input_{st.session_state.current_index}" # 문제마다 키 변경
+    )
+
+    # 정답 확인 버튼
+    if st.button("정답 확인 및 다음 문제!"):
+        if correct_answer is not None:
+            check_answer(user_answer, correct_answer)
+            st.experimental_rerun() # 피드백을 보여주고 다음 문제로 넘어가기 위해 앱 재실행
+    
+    # 피드백 메시지 표시
+    if st.session_state.feedback:
+        if "정답이에요" in st.session_state.feedback:
+            st.success(st.session_state.feedback)
+        else:
+            st.error(st.session_state.feedback)
+    
+    st.write("---")
+    
+    # 현재 점수 현황
+    st.info(f"✨ **현재 점수:** {st.session_state.score}점 / {st.session_state.current_index}문제")
+
+else:
+    # --- 퀴즈 종료 화면 ---
+    st.balloons()
+    st.success("🏆 **대단해요! 2단 마스터 완료!** 🏆")
+    st.markdown(f"## 최종 점수: **{st.session_state.score}점** / **{st.session_state.total_questions}문제**")
+    
+    if st.button("처음부터 다시 시작"):
+        # 세션 상태 초기화 후 재실행
+        st.session_state.score = 0
+        st.session_state.current_index = 0
+        st.session_state.feedback = ""
+        st.session_state.quiz_finished = False
+        st.experimental_rerun()
